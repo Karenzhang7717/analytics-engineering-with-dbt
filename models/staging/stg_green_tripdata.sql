@@ -1,17 +1,17 @@
-{{ config(materialized='table') }}
+{{ config(materialized='view') }}
 
-with tripdata as (
-  SELECT *,
-    row_number() OVER (PARTITION BY vendorid, lpep_pickup_datetime) AS rn
-  FROM {{ source('staging', 'green_taxi_2019_2020') }}
-  WHERE vendorid IS NOT NULL
+with tripdata as 
+(
+  select *,
+    row_number() over(partition by vendorid, lpep_pickup_datetime) as rn
+  from {{ source('staging','green_tripdata') }}
+  where vendorid is not null 
 )
-
 select
     -- identifiers
-    {{ dbt_utils.surrogate_key(['vendorid', 'lpep_pickup_datetime']) }} as trip_id,
+    {{ dbt_utils.surrogate_key(['vendorid', 'lpep_pickup_datetime']) }} as tripid,
     cast(vendorid as integer) as vendorid,
-    cast(ratecodeid as numeric) as ratecodeid,
+    cast(ratecodeid as integer) as ratecodeid,
     cast(pulocationid as integer) as  pickup_locationid,
     cast(dolocationid as integer) as dropoff_locationid,
     
@@ -23,7 +23,7 @@ select
     store_and_fwd_flag,
     cast(passenger_count as integer) as passenger_count,
     cast(trip_distance as numeric) as trip_distance,
-    -- cast(trip_type as integer) as trip_type,
+    cast(trip_type as integer) as trip_type,
     
     -- payment info
     cast(fare_amount as numeric) as fare_amount,
@@ -39,6 +39,7 @@ select
     cast(congestion_surcharge as numeric) as congestion_surcharge
 from tripdata
 where rn = 1
+
 
 -- dbt build --m <model.sql> --var 'is_test_run: false'
 {% if var('is_test_run', default=true) %}

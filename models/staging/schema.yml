@@ -2,12 +2,12 @@ version: 2
 
 sources:
     - name: staging
-      database: dtc-de-course-368906
-      schema: trips_data
+      database: crafty-elf-376416
+      schema: trips_data_all_us
 
       tables:
-        - name: yellow_taxi_2019_2020
-        - name: green_taxi_2019_2020
+        - name: yellos_tripdata_2021
+        - name: green_tripdata
 
 models:
     - name: stg_yellow_tripdata
@@ -18,7 +18,7 @@ models:
         The records were collected and provided to the NYC Taxi and Limousine Commission (TLC) by
         technology service providers. 
       columns:
-          - name: trip_id
+          - name: tripid
             description: Primary key for this table, generated with a concatenation of vendorid+pickup_datetime
             tests:
                 - unique:
@@ -129,7 +129,7 @@ models:
         The records were collected and provided to the NYC Taxi and Limousine Commission (TLC) by
         technology service providers. 
       columns:
-          - name: trip_id
+          - name: tripid
             description: Primary key for this table, generated with a concatenation of vendorid+pickup_datetime
             tests:
                 - unique:

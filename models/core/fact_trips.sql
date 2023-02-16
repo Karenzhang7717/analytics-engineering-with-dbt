@@ -1,30 +1,29 @@
 {{ config(materialized='table') }}
 
-WITH green_data AS (
-    SELECT *,
-        'Green' AS service_type
+with green_data as (
+    select *, 
+        'Green' as service_type 
     from {{ ref('stg_green_tripdata') }}
-),
+), 
 
-yellow_data AS (
-    SELECT *,
-        'Yellow' AS service_type
+yellow_data as (
+    select *, 
+        'Yellow' as service_type
     from {{ ref('stg_yellow_tripdata') }}
-),
+), 
 
-trips_unioned AS (
-    SELECT * FROM green_data
-    UNION ALL
-    SELECT * FROM yellow_data
-),
+trips_unioned as (
+    select * from green_data
+    union all
+    select * from yellow_data
+), 
 
-dim_zones AS (
-    SELECT * FROM {{ ref('dim_zones') }}
-    WHERE Borough != 'Unknown'
+dim_zones as (
+    select * from {{ ref('dim_zones') }}
+    where borough != 'Unknown'
 )
-
-SELECT 
-    trips_unioned.trip_id, 
+select 
+    trips_unioned.tripid, 
     trips_unioned.vendorid, 
     trips_unioned.service_type,
     trips_unioned.ratecodeid, 
@@ -39,7 +38,7 @@ SELECT
     trips_unioned.store_and_fwd_flag, 
     trips_unioned.passenger_count, 
     trips_unioned.trip_distance, 
-    -- trips_unioned.trip_type, 
+    trips_unioned.trip_type, 
     trips_unioned.fare_amount, 
     trips_unioned.extra, 
     trips_unioned.mta_tax, 
@@ -51,8 +50,8 @@ SELECT
     trips_unioned.payment_type, 
     trips_unioned.payment_type_description, 
     trips_unioned.congestion_surcharge
-FROM trips_unioned
-INNER JOIN dim_zones AS pickup_zone
-ON trips_unioned.pickup_locationid = pickup_zone.locationid
-INNER JOIN dim_zones AS dropoff_zone
-ON trips_unioned.dropoff_locationid = dropoff_zone.locationid
+from trips_unioned
+inner join dim_zones as pickup_zone
+on trips_unioned.pickup_locationid = pickup_zone.locationid
+inner join dim_zones as dropoff_zone
+on trips_unioned.dropoff_locationid = dropoff_zone.locationid
